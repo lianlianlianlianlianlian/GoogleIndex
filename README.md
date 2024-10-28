@@ -16,7 +16,7 @@
 1. **Python 3.x**：确保您的系统上安装了 Python 3.x。
 2. **所需库**：安装以下 Python 库：
    ```bash
-   pip install requests google-auth
+   pip3 install requests google-auth
    ```
 
 3. **Google API 凭证**：您需要一个 Google Cloud 项目，并启用 Indexing API。创建服务账户并下载 JSON 格式的凭证文件，命名为 `key.json`，并将其放在与脚本相同的目录中。
@@ -35,7 +35,7 @@
 2. **运行脚本**：
    在终端中运行以下命令：
    ```bash
-   python your_script_name.py
+   python api.py
    ```
 
 3. **查看日志**：
