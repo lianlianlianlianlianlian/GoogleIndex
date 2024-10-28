@@ -35,7 +35,7 @@
 2. **运行脚本**：
    在终端中运行以下命令：
    ```bash
-   python api.py
+   python3 api.py
    ```
 
 3. **查看日志**：
