@@ -20,8 +20,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --no-cache-dir requests xmltodict google-auth google-auth-oauthlib google-auth-httplib2  # 安装依赖，包括 google-auth
+          pip install --no-cache-dir requests xmltodict google-auth google-auth-oauthlib google-auth-httplib2  # 安装依赖
+
+      - name: Set up Google credentials
+        # 将 GOOGLE_APPLICATION_CREDENTIALS_JSON Secret 写入 key.json 文件
+        run: |
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" > key.json
+        # 设置环境变量，以便脚本可以找到凭证文件
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
 
       - name: Run api.py
-        run: python api.py
-
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/key.json  # 设置凭证环境变量
+        run: python api.py  # 执行 api.py
