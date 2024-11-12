@@ -22,11 +22,6 @@ jobs:
         run: |
           pip install --no-cache-dir requests xmltodict google-auth google-auth-oauthlib google-auth-httplib2  # 安装依赖，包括 google-auth
 
-      - name: Run index.py
-        run: python index.py  # 执行 index.py
+      - name: Run api.py
+        run: python api.py
 
-      - name: Run img.py
-        run: python img.py  # 执行 img.py
-
-      - name: Run blog.py
-        run: python blog.py  # 执行 blog.py
