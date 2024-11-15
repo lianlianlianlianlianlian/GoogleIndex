@@ -1,0 +1,36 @@
+name: Run API Script
+
+on:
+  workflow_dispatch:  # 允许手动触发工作流
+  schedule:
+    - cron: '1 8 * * *'  # 每天早上 8:01 执行
+
+jobs:
+  run-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install --no-cache-dir requests xmltodict google-auth google-auth-oauthlib google-auth-httplib2  # 安装依赖
+
+      - name: Set up Google credentials
+        # 将 GOOGLE_APPLICATION_CREDENTIALS_JSON Secret 写入 key.json 文件
+        run: |
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" > key.json
+        # 设置环境变量，以便脚本可以找到凭证文件
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+
+      - name: Run api.py
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/key.json  # 设置凭证环境变量
+        run: python api.py  # 执行 api.py
