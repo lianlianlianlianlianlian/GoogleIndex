@@ -76,10 +76,10 @@ def submit_url_to_google(url, credentials):
         
         response = requests.post(GOOGLE_INDEXING_API_URL, json=body, headers=headers)  # 发送 POST 请求
         response.raise_for_status()  # 检查请求是否成功
-        return True, response.text  # 返回成功和响应文本
+        return response.status_code, response.text  # 返回状态码和响应文本
     except Exception as e:
         print(f"提交 URL {url} 时出错: {e}")
-        return False, str(e)
+        return None, str(e)
 
 # 主程序
 def main():
@@ -90,8 +90,8 @@ def main():
     if credentials is None:
         return  # 如果凭证获取失败，退出程序
 
-    # 每个站点的提交统计
-    site_statistics = {}
+    total_success = 0  # 成功计数
+    total_failure = 0  # 失败计数
 
     # 日志记录
     log_file = 'submission_log.txt'
@@ -106,37 +106,25 @@ def main():
                 # 限制提交的 URL 数量
                 urls_to_submit = urls[:max_urls]  # 取前 max_urls 个 URL
 
-                # 初始化站点统计
-                site_statistics[sitemap_url] = {'total': 0, 'success': 0, 'failure': 0}
-
                 # 提交 URL 的并发操作
                 futures = {executor.submit(submit_url_to_google, url, credentials): url for url in urls_to_submit}
                 for future in futures:  # 遍历每个未来对象
                     url = futures[future]  # 获取对应的 URL
                     try:
-                        success, response_text = future.result()  # 获取结果
-                        log_entry = f'提交 {url}: {"成功" if success else "失败"} - {response_text}\n'  # 日志条目
+                        status_code, response_text = future.result()  # 获取结果
+                        log_entry = f'提交 {url}: {status_code} - {response_text}\n'  # 日志条目
                         print(log_entry.strip())  # 打印到控制台
                         log.write(log_entry)  # 写入日志文件
-
-                        # 更新站点统计
-                        site_statistics[sitemap_url]['total'] += 1
-                        if success:
-                            site_statistics[sitemap_url]['success'] += 1
-                        else:
-                            site_statistics[sitemap_url]['failure'] += 1
+                        total_success += 1  # 成功计数
                     except Exception as e:
                         log_entry = f'提交 {url} 失败: {e}\n'  # 错误日志
                         print(log_entry.strip())  # 打印错误信息
                         log.write(log_entry)  # 写入日志文件
+                        total_failure += 1  # 失败计数
 
     # 打印总结
-    print("\n提交总结：")
-    for sitemap_url, stats in site_statistics.items():
-        print(f"\n站点 {sitemap_url}:")
-        print(f"总共提交了 {stats['total']} 个 URL")
-        print(f"成功提交 {stats['success']} 个 URL")
-        print(f"失败提交 {stats['failure']} 个 URL")
+    print(f"\n成功提交的 URL 总数: {total_success}")
+    print(f"提交失败的 URL 总数: {total_failure}")
 
 if __name__ == '__main__':
     main()
